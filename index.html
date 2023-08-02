@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CPS Test</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #f3f3f3;
+      font-family: Arial, sans-serif;
+    }
+
+    #testArea {
+      width: 200px;
+      height: 200px;
+      background: lightgray;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+      border: 2px solid #ccc;
+      margin: 10px;
+      border-radius: 5px;
+    }
+
+    button {
+      margin: 20px;
+      padding: 10px;
+      border: none;
+      background: #6C63FF;
+      color: white;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background: #4e4bd9;
+    }
+
+    #message {
+      font-size: 1.5em;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    p {
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>CPS Test</h1>
+  <div id="testArea">
+    <p id="clicks">0</p>
+  </div>
+
+  <button onclick="startTest(1)">1 second</button>
+  <button onclick="startTest(5)">5 seconds</button>
+  <button onclick="startTest(10)">10 seconds</button>
+  <button onclick="startTest(30)">30 seconds</button>
+  <button onclick="startTest(60)">60 seconds</button>
+
+  <p id="result"></p>
+  <p id="countdown"></p>
+  <h2 id="message"></h2>
+
+  <script>
+    var testArea = document.getElementById("testArea");
+    var clicksElement = document.getElementById("clicks");
+    var resultElement = document.getElementById("result");
+    var messageElement = document.getElementById("message");
+    var countdownElement = document.getElementById("countdown");
+    var clicks = 0;
+    var testStarted = false;
+    var duration;
+
+    var leftClick = false;
+    var rightClick = false;
+
+    testArea.addEventListener('mousedown', function(e) {
+      if (!testStarted && (e.button === 0 || e.button === 2)) {
+        clicks = 0;
+        testStarted = true;
+        clicksElement.textContent = clicks;
+        countdownElement.textContent = duration + " seconds left";
+        var countdown = setInterval(function() {
+          duration--;
+          countdownElement.textContent = duration + " seconds left";
+          if(duration <= 0) {
+            clearInterval(countdown);
+          }
+        }, 1000);
+        setTimeout(function() {
+          testStarted = false;
+          resultElement.textContent = `You detonated ${clicks} crystals in ${duration} seconds.`;
+          countdownElement.textContent = "";
+        }, duration * 1000);
+      }
+
+      if (e.button === 0) {
+        leftClick = true;
+        if (rightClick) {
+          messageElement.textContent = "Crystal Exploded";
+          clicks++;
+          clicksElement.textContent = clicks;
+        }
+      }
+      if (e.button === 2) {
+        rightClick = true;
+        messageElement.textContent = "Crystal Placed";
+      }
+    });
+
+    testArea.addEventListener('mouseup', function(e) {
+      if (e.button === 0) {
+        leftClick = false;
+      }
+      if (e.button === 2) {
+        rightClick = false;
+      }
+      messageElement.textContent = "";
+    });
+
+    testArea.addEventListener('contextmenu', function(e) {
+      e.preventDefault(); // To prevent the context menu from showing up on right-click
+    });
+
+    function reset() {
+      clicks = 0;
+      leftClick = false;
+      rightClick = false;
+      messageElement.textContent = "";
+      resultElement.textContent = "";
+      countdownElement.textContent = "";
+      clicksElement.textContent = clicks;
+    }
+
+    function startTest(time) {
+      reset();
+      duration = time;
+    }
+  </script>
+</body>
+</html>
